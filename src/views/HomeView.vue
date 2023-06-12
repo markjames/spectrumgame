@@ -15,6 +15,7 @@ const onStartNewGame = () => {
 }
 
 const onEnterGameCode = () => {
+  console.log(gameCode.value);
   gameStore.loadByGameCode( gameCode.value );
   router.push({name:'lobby'});
 }
@@ -33,7 +34,7 @@ const onEnterGameCode = () => {
         <h2>Join game</h2>
 
         <label for="input--join-code">Enter game code</label>
-        <InputMask id="input--join-code" class="input input--join-code" mask="****" :model="gameCode" placeholder="" />
+        <InputMask id="input--join-code" class="input input--join-code" mask="****" v-model="gameCode" placeholder="" />
 
         <Button label="Join a game" @click="onEnterGameCode" />
     </div>
