@@ -1,0 +1,36 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "questions": {
+      ".read": true,
+      ".write": false
+    },
+
+    "games": {
+      ".indexOn": ["gameCode"],
+
+      "$gameid": {
+        ".read": true,
+        ".write": false,
+
+        "isStarted": {
+          ".read": true,
+          ".write": true,
+          ".validate": "newData.isBoolean()"
+        },
+        "gameCode": {
+          ".read": true,
+          ".write": "!data.exists() || !newData.exists()"
+        },
+        "players": {
+          "$playerid": {
+            ".read": true,
+            ".write": true
+          }
+        }
+      }
+    }
+  }
+}

@@ -15,11 +15,13 @@
   },
   "dependencies": {
     "@intlify/unplugin-vue-i18n": "^0.11.0",
+    "firebase": "^9.22.2",
     "pinia": "^2.0.36",
     "primevue": "^3.29.2",
     "vue": "^3.3.2",
     "vue-i18n": "^9.2.2",
-    "vue-router": "^4.2.0"
+    "vue-router": "^4.2.0",
+    "vuefire": "^3.1.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.33.0",
