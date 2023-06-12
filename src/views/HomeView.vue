@@ -3,12 +3,24 @@ import { useRouter } from 'vue-router'
 import Button from "primevue/Button"
 import InputMask from "primevue/InputMask"
 
-const router = useRouter()
+import { useGameStore } from '@/stores/game';
+import { ref } from 'vue';
+
+const gameStore = useGameStore();
+const router = useRouter();
+const gameCode = ref('');
 
 const onStartNewGame = () => {
   router.push({name:'lobby'});
 }
+
+const onEnterGameCode = () => {
+  gameStore.loadByGameCode( gameCode.value );
+  router.push({name:'lobby'});
+}
+
 </script>
+
 
 <template>
   <main>
@@ -21,9 +33,9 @@ const onStartNewGame = () => {
         <h2>Join game</h2>
 
         <label for="input--join-code">Enter game code</label>
-        <InputMask id="input--join-code" class="input input--join-code" mask="****" placeholder="" />
+        <InputMask id="input--join-code" class="input input--join-code" mask="****" :model="gameCode" placeholder="" />
 
-        <Button label="Join a game" />
+        <Button label="Join a game" @click="onEnterGameCode" />
     </div>
   </main>
 </template>

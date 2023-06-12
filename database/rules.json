@@ -10,6 +10,8 @@
 
     "games": {
       ".indexOn": ["gameCode"],
+      ".read": true,
+      ".write": false,
 
       "$gameid": {
         ".read": true,

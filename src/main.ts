@@ -4,8 +4,8 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { VueFire } from 'vuefire'
 import PrimeVue from 'primevue/config';
-import "primevue/resources/primevue.min.css";
-import "primevue/resources/themes/lara-light-indigo/theme.css";  ; 
+import 'primevue/resources/themes/bootstrap4-dark-blue/theme.css';
+import "primevue/resources/primevue.min.css"; 
 
 import App from './App.vue'
 import router from './router'

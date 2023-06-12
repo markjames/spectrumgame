@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { Database, get as get, getDatabase, ref } from 'firebase/database';
+import { Database, get as get, getDatabase, ref, type DatabaseReference } from 'firebase/database';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -12,13 +12,12 @@ const firebaseConfig = {
   databaseURL: "https://spectrumgame-c8131-default-rtdb.europe-west1.firebasedatabase.app/"
 };
 
-// used for the firestore refs
+export type NullableDatabaseReference = DatabaseReference | null;
 
 // Initialize Firebase
 export const firebaseApp = initializeApp(firebaseConfig);
 export const firebaseAuth = getAuth(firebaseApp);
-const db:Database = getDatabase(firebaseApp);
+export const firebaseDb:Database = getDatabase(firebaseApp);
 export const firebaseRef = ref;
 export const firebaseGet = get;
-export const questionsRef = firebaseRef(db, 'questions');
-export const gamesRef = firebaseRef(db, 'games');
+export const questionsRef:DatabaseReference  = firebaseRef(firebaseDb, 'questions');
