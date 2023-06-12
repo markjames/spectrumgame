@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RouterLink, RouterView, useRouter } from 'vue-router'
+import { RouterView, useRouter } from 'vue-router'
 import Breadcrumb from "primevue/Breadcrumb"
 import { ref } from 'vue';
 
