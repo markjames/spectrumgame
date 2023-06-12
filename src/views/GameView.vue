@@ -2,14 +2,24 @@
   <div class="view view--game">
     <h1>Game</h1>
 
-    <GameQuestion left="C" right="D"></GameQuestion>
+    <p>Is loaded? {{ isLoaded }}</p>
+
+    <div v-for="(question,idx) in questions" :key="idx">
+      <QuestionCard :question="question"></QuestionCard>
+    </div>
+    
   </div>
 </template>
 
 <script setup lang="ts">
-import GameQuestion from '@/components/GameQuestion.vue';
+import QuestionCard from '@/components/QuestionCard.vue';
+import { useQuestionsStore } from '@/stores/questions';
+import { storeToRefs } from 'pinia';
 
+const questionStore = useQuestionsStore();
+const { questions, isLoaded } = storeToRefs(questionStore);
 
+console.log("Questions:",questions);
 
 </script>
   

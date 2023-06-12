@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { RouterView, useRouter } from 'vue-router'
 import Breadcrumb from "primevue/Breadcrumb"
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import { useQuestionsStore } from './stores/questions';
 
 const router = useRouter();
 
@@ -10,7 +11,11 @@ const gameProgressQuicklinks = ref([
   { label: 'Lobby', command: () => { router.push({ name: 'lobby' }) } },
   { label: 'Game', command: () => { router.push({ name: 'game' }) } }
 ]);
-console.log(router);
+
+const questionsStore = useQuestionsStore();
+onMounted( () => {
+  questionsStore.load();
+});
 
 </script>
 
