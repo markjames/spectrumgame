@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { Database, get as get, getDatabase, ref, type DatabaseReference } from 'firebase/database';
+import { Database, get as get, getDatabase, ref, type DatabaseReference, set, update } from 'firebase/database';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -20,4 +20,6 @@ export const firebaseAuth = getAuth(firebaseApp);
 export const firebaseDb:Database = getDatabase(firebaseApp);
 export const firebaseRef = ref;
 export const firebaseGet = get;
+export const firebaseSet = set;
+export const firebaseUpdate = update;
 export const questionsRef:DatabaseReference  = firebaseRef(firebaseDb, 'questions');

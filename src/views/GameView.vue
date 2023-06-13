@@ -18,9 +18,6 @@ import { storeToRefs } from 'pinia';
 
 const questionStore = useQuestionsStore();
 const { questions, isLoaded } = storeToRefs(questionStore);
-
-console.log("Questions:",questions);
-
 </script>
   
 <style scoped></style>
