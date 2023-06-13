@@ -1,8 +1,10 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createMemoryHistory  } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import { RoundStage, useGameStore, type GameState } from '@/stores/game';
+import { watch } from 'vue';
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createMemoryHistory(),
   routes: [
     {
       path: '/',
@@ -20,6 +22,6 @@ const router = createRouter({
       component: () => import('../views/GameView.vue')
     }
   ]
-})
+});
 
 export default router
