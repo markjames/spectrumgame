@@ -12,8 +12,8 @@ A multiplayer web version of the social game "Wavelength".
 ## Tech Stack
 
 * Vue.js 3 + Typescript
-* Pinia (Store)
-* Firebase Realtime Database (Database) 
+* Pinia (Store) w/ Composition API
+* Firebase Realtime Database (Database) w/ Security Rules
 * Primevue (Component Library)
 * Vite (Bundler)
 * Vitest/Playwright (Test)
