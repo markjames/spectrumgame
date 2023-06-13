@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { RouterView, useRouter } from 'vue-router'
+
+// PrimeVue components
 import Breadcrumb from "primevue/Breadcrumb"
+import Toast from 'primevue/toast';
+
 import { onMounted, ref } from 'vue';
 import { useQuestionsStore } from './stores/questions';
 
@@ -23,6 +27,7 @@ onMounted( () => {
   <header>
     <div class="wrapper">
       <Breadcrumb :model="gameProgressQuicklinks" />
+      <Toast position="bottom-center" />
     </div>
   </header>
   <RouterView />

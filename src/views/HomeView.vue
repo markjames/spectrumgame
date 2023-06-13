@@ -1,23 +1,31 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+
+// PrimeVue Components
 import Button from "primevue/Button"
 import InputMask from "primevue/InputMask"
+import { useToast } from 'primevue/usetoast';
 
 import { useGameStore } from '@/stores/game';
 import { ref } from 'vue';
 
-const gameStore = useGameStore();
 const router = useRouter();
+const toast = useToast();
+const gameStore = useGameStore();
 const gameCode = ref('');
 
 const onStartNewGame = () => {
   router.push({name:'lobby'});
 }
 
-const onEnterGameCode = () => {
-  console.log(gameCode.value);
-  gameStore.loadByGameCode( gameCode.value );
-  router.push({name:'lobby'});
+const onEnterGameCode = async () => {
+  try {
+    await gameStore.loadByGameCode( gameCode.value );
+    router.push({name:'lobby'});
+    toast.removeAllGroups();
+  } catch( error ) {
+    toast.add({ severity: 'info', summary: 'Could not join game', detail: error });
+  }
 }
 
 </script>
