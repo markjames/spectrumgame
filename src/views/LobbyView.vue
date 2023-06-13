@@ -28,14 +28,12 @@ watch(game.state, async (newState:GameState, oldState:GameState) => {
         <h3>Game Code</h3>
         <samp>{{ game.state.gameCode }}</samp>
 
-        <Button label="Start Game" @click="startGame"></Button>
-
         <h3>Players</h3>
-        <ul>
-            <li>Player One</li>
-            <li>Player Two</li>
-            <li>Player Three</li>
+        <ul v-for="(player,playerIndex) in game.state.players.values()" v-bind:key="playerIndex">
+            <li>{{ player.name }} ({{ player.id }})</li>
         </ul>
+
+        <Button label="Start Game" @click="startGame"></Button>
     </main>
 </template>
 

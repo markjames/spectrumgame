@@ -1,4 +1,4 @@
-import { reactive, ref, type Ref } from 'vue'
+import { reactive } from 'vue'
 import { defineStore } from 'pinia'
 import {
   firebaseGet,
@@ -9,6 +9,8 @@ import {
 } from '@/firebase'
 //import { useQuestionsStore } from '@/stores/questions'
 import { onValue, type DataSnapshot, type DatabaseReference } from 'firebase/database'
+import { useStorage } from '@vueuse/core'
+import { v4 as uuidv4 } from 'uuid'
 
 export const enum RoundStage {
   Start,
@@ -31,28 +33,32 @@ export interface GameState {
   id: string
   gameCode: string
   isLobbyCreator: boolean
-  players: Player[]
+  players: Map<string, Player>
   roundStage: RoundStage
   roundNumber: number
 }
 
 export const useGameStore = defineStore('game', () => {
-  //const questions = useQuestionsStore()
+  // Persist user information locally (for if they rejoin)
+  const localStorage = useStorage('spectrum', { userId: uuidv4(), name: '', avatar: 0 })
 
+  // Main game state
   const state: GameState = reactive({
-    currentUserId: '12345678',
+    currentUserId: localStorage.value.userId,
     id: '',
     isLobbyCreator: false,
     gameCode: '',
     roundStage: RoundStage.Start,
     roundNumber: 0,
-    players: [] as Player[]
+    players: new Map()
   })
+
+  //const questions = useQuestionsStore()
 
   /**
    * The firebase game object reference (once it has been found and loaded)
    */
-  const gameRef: Ref<NullableDatabaseReference> = ref(null)
+  let gameRef:NullableDatabaseReference = null;
 
   /*
    * Load a game lobby based on provided game ID
@@ -84,13 +90,13 @@ export const useGameStore = defineStore('game', () => {
 
       // Store a ref to the firebase object and watch it for updates
       // We can look to abstract this to a use function
-      gameRef.value = firebaseRef(firebaseDb, 'games/' + gameId)
-      state.id = gameId
-      onValue(gameRef.value, onFirebaseGameStateUpdated)
+      //gameRef.value = firebaseRef(firebaseDb, 'games/' + gameId)
+      gameRef = firebaseRef(firebaseDb, 'games/' + gameId);
+      state.id = gameId;
+      onValue(gameRef, onFirebaseGameStateUpdated)
 
       addSelfToGameAsPlayer()
     } catch (error) {
-      console.error(error)
       throw new Error('Could not load game lobby')
     }
   }
@@ -99,18 +105,44 @@ export const useGameStore = defineStore('game', () => {
    * When the Firebase object updates, syncronise the pinia store state to the best same
    */
   const onFirebaseGameStateUpdated = async (snapshot: DataSnapshot) => {
-    Object.assign(state, snapshot.val())
+
+    // TODO: Do a diff for changes
+
+    const snapshotValue = snapshot.val();
+    state.id = snapshotValue.id;
+    state.gameCode = snapshotValue.gameCode;
+    state.roundStage = snapshotValue.roundStage;
+    state.roundNumber = snapshotValue.roundNumber;
+
+    const playerSnapshot:Array<Record<string,string>> = Object.values(snapshotValue.players);
+
+    for( const playerData of playerSnapshot ) {
+      const player:Player = {
+        id: playerData.id,
+        name: playerData.name,
+        avatar: parseInt(playerData.avatar),
+        lastSeen: new Date(playerData.lastSeen),
+        points: parseInt(playerData.points)
+      }
+      state.players.set( player.id, player );
+    }
+
+
   }
 
   /**
    *  Add yourself to the game
    */
   const addSelfToGameAsPlayer = async () => {
-    if (gameRef.value === null) {
-      throw new Error('Cannot join game (no game found)')
+    if (gameRef === null) {
+      //throw new Error('Cannot join game (no game found)')
     }
-    firebaseUpdate(gameRef.value as DatabaseReference, {
-      [`players/${state.currentUserId}/name`]: 'Mark'
+    firebaseUpdate(gameRef as DatabaseReference, {
+      [`players/${state.currentUserId}/id`]: state.currentUserId,
+      [`players/${state.currentUserId}/name`]: 'Mark',
+      [`players/${state.currentUserId}/lastSeen`]: new Date().toUTCString(),
+      [`players/${state.currentUserId}/points`]: 0,
+      [`players/${state.currentUserId}/avatar`]: 0
     })
   }
 
@@ -128,7 +160,7 @@ export const useGameStore = defineStore('game', () => {
    */
   const start = () => {
     if (state.roundStage == RoundStage.Lobby) {
-      firebaseUpdate(gameRef.value as DatabaseReference, {
+      firebaseUpdate(gameRef as DatabaseReference, {
         [`roundStage`]: RoundStage.QuestionBeingAsked
       })
     }
