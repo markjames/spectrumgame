@@ -17,15 +17,21 @@
         ".read": true,
         ".write": false,
 
-        "isStarted": {
-          ".read": true,
-          ".write": true,
-          ".validate": "newData.isBoolean()"
-        },
         "gameCode": {
           ".read": true,
           ".write": "!data.exists() || !newData.exists()"
         },
+        "roundStage": {
+          ".read": true,
+          ".write": true,
+          ".validate": "newData.isNumber()"
+        },
+        "roundNumber": {
+          ".read": true,
+          ".write": true,
+          ".validate": "newData.isNumber()"
+        },
+
         "players": {
           "$playerid": {
             ".read": true,
