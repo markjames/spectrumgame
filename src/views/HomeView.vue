@@ -1,17 +1,41 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 
+import AvatarSelect from '@/components/AvatarSelect.vue';
+
 // PrimeVue Components
 import Button from "primevue/Button"
-import InputMask from "primevue/InputMask"
+import InputText from "primevue/InputText"
 import { useToast } from 'primevue/usetoast';
 
 import { useGameStore } from '@/stores/game';
-import { ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const router = useRouter();
 const toast = useToast();
 const gameStore = useGameStore();
+
+// User name
+const name = ref('');
+
+// TODO: Move to bundler
+const avatarImages = [
+  '/public/avatars/0.png',
+  '/public/avatars/1.png',
+  '/public/avatars/3.png',
+  '/public/avatars/4.png',
+  '/public/avatars/5.png',
+  '/public/avatars/6.png',
+  '/public/avatars/7.png',
+  '/public/avatars/8.png',
+  '/public/avatars/9.png',
+  '/public/avatars/10.png'
+];
+
+// Avatar ID
+const avatarId = ref(Math.floor(Math.random()*avatarImages.length));
+
+// 4-digit game code
 const gameCode = ref('');
 
 const onStartNewGame = () => {
@@ -28,23 +52,44 @@ const onEnterGameCode = async () => {
   }
 }
 
+const isGameCodeValidFormat = computed(() => {
+  return gameCode.value.length == 4;
+});
+
+watch( avatarId, () => {
+  console.log('[HomeView] Avatar ID changed', avatarId.value );
+});
+
 </script>
 
 
 <template>
   <main>
+
+    <!-- Player customises their appearance -->
+    <div class="view view--customise-player">
+      <label for="input--name">Name</label>
+      <InputText id="input--name" class="input input--name" v-model="name" placeholder="Your name" maxlength="10" />
+
+      <label>Avatar</label>
+      <AvatarSelect v-model="avatarId" :images="avatarImages" />
+      
+    </div>
+
+    <!-- Start a new game lobby -->
     <div class="view view--join-game">
         <h2>Create</h2>
         <Button label="Start a new game" @click="onStartNewGame" />
     </div>
 
+    <!-- Join an existing game (in-progress or in-lobby) -->
     <div class="view view--join-game">
         <h2>Join game</h2>
 
         <label for="input--join-code">Enter game code</label>
-        <InputMask id="input--join-code" class="input input--join-code" mask="****" v-model="gameCode" placeholder="" />
+        <InputText id="input--join-code" class="input input--join-code" v-model="gameCode" placeholder="ABCD" maxlength="4" />
 
-        <Button label="Join a game" @click="onEnterGameCode" />
+        <Button label="Join a game" @click="onEnterGameCode" :disabled="!isGameCodeValidFormat" />
     </div>
   </main>
 </template>
