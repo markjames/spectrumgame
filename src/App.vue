@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'SpectrumGame' };
+</script>
+
 <script setup lang="ts">
 import { RouterView, useRouter } from 'vue-router'
 
@@ -9,7 +13,6 @@ import { onMounted, ref } from 'vue';
 import { useQuestionsStore } from './stores/questions';
 
 const router = useRouter();
-
 const gameProgressQuicklinks = ref([
   { label: 'Home', command: () => { router.push({ name: 'home' }) } },
   { label: 'Lobby', command: () => { router.push({ name: 'lobby' }) } },
