@@ -7,7 +7,7 @@ import {
   type NullableDatabaseReference,
   firebaseUpdate
 } from '@/firebase'
-//import { useQuestionsStore } from '@/stores/questions'
+import { useQuestionsStore } from '@/stores/questions'
 import { onValue, type DataSnapshot, type DatabaseReference } from 'firebase/database'
 import { useStorage } from '@vueuse/core'
 import { v4 as uuidv4 } from 'uuid'
@@ -53,7 +53,11 @@ export const useGameStore = defineStore('game', () => {
     players: new Map()
   })
 
-  //const questions = useQuestionsStore()
+  const questionsStore = useQuestionsStore();
+
+  const questions = async () => {
+    return questionsStore.questions;
+  }
 
   /**
    * The firebase game object reference (once it has been found and loaded)
@@ -166,5 +170,5 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
-  return { state, createNewGame, loadByGameCode, start }
+  return { state, questions, createNewGame, loadByGameCode, start }
 })
