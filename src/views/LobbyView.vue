@@ -13,8 +13,9 @@ const startGame = () => {
     game.start();
 };
 
+// If the game updates to 'playable' game state, then move to game
 watch(game.state, async (newState:GameState, oldState:GameState) => {
-    if (oldState.roundStage == RoundStage.Lobby && newState.roundStage == RoundStage.QuestionBeingAsked ) {
+    if (newState.roundStage == RoundStage.QuestionBeingAsked ) {
         router.push({ name: 'game' });
     }
 });
