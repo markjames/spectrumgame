@@ -9,11 +9,12 @@ import InputText from "primevue/InputText"
 import { useToast } from 'primevue/usetoast';
 
 import { useGameStore } from '@/stores/game';
-import { computed, ref, watch } from 'vue';
+
+import { computed, onMounted, ref, watch } from 'vue';
 
 const router = useRouter();
 const toast = useToast();
-const gameStore = useGameStore();
+const game = useGameStore();
 
 // User name
 const name = ref('');
@@ -39,12 +40,31 @@ const avatarId = ref(Math.floor(Math.random()*avatarImages.length));
 const gameCode = ref('');
 
 const onStartNewGame = () => {
+
+  // Quick validation on name
+  if( !game.localUser.name || game.localUser.name.length > 20 ) {
+    toast.add({ severity: 'info', summary: 'Enter your name before you join!' });
+    return;
+  }
+
   router.push({name:'lobby'});
 }
 
+onMounted(() => {
+  name.value = game.localUser.name;
+  avatarId.value = game.localUser.avatar;
+})
+
 const onEnterGameCode = async () => {
+
+  // Quick validation on name
+  if( !game.localUser.name || game.localUser.name.length > 20 ) {
+    toast.add({ severity: 'info', summary: 'Enter your name before you join!' });
+    return;
+  }
+
   try {
-    await gameStore.loadByGameCode( gameCode.value );
+    await game.joinGame(gameCode.value);
     router.push({name:'lobby'});
     toast.removeAllGroups();
   } catch( error ) {
@@ -56,8 +76,14 @@ const isGameCodeValidFormat = computed(() => {
   return gameCode.value.length == 4;
 });
 
+watch( name, () => {
+  console.log('[HomeView] Name changed', name.value );
+  game.localUser.name = name.value;
+});
+
 watch( avatarId, () => {
   console.log('[HomeView] Avatar ID changed', avatarId.value );
+  game.localUser.avatar = avatarId.value;
 });
 
 </script>

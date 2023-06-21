@@ -1,4 +1,6 @@
-import { reactive } from 'vue'
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
+import { reactive, computed } from 'vue'
 import { defineStore } from 'pinia'
 import {
   firebaseGet,
@@ -23,28 +25,31 @@ export const enum RoundStage {
 export interface Player {
   id: string
   name: string
-  lastSeen: Date
-  points: number
   avatar: number
 }
 
+export interface GameParticipant extends Player {
+  lastSeen: Date
+  points: number
+}
+
 export interface GameState {
-  currentUserId: string
   id: string
   gameCode: string
   isLobbyCreator: boolean
-  players: Map<string, Player>
+  players: Map<string, GameParticipant>
   roundStage: RoundStage
   roundNumber: number
 }
 
 export const useGameStore = defineStore('game', () => {
   // Persist user information locally (for if they rejoin)
-  const localStorage = useStorage('spectrum', { userId: uuidv4(), name: '', avatar: 0 })
-
+  const localUser = useStorage('spectrum-localuser', { id: uuidv4(), name: '', avatar: 0 } as Player, localStorage, {
+    mergeDefaults: true
+  });
+  
   // Main game state
-  const state: GameState = reactive({
-    currentUserId: localStorage.value.userId,
+  const state = reactive({
     id: '',
     isLobbyCreator: false,
     gameCode: '',
@@ -52,17 +57,21 @@ export const useGameStore = defineStore('game', () => {
     roundNumber: 0,
     players: new Map()
   })
-
+  
+  
   const questionsStore = useQuestionsStore();
-
   const questions = async () => {
-    return questionsStore.questions;
+    return questionsStore.questions
   }
+
+  const userId = computed(() => {
+    return localUser.value.id;
+  });
 
   /**
    * The firebase game object reference (once it has been found and loaded)
    */
-  let gameRef:NullableDatabaseReference = null;
+  let gameRef: NullableDatabaseReference = null
 
   /*
    * Load a game lobby based on provided game ID
@@ -95,8 +104,8 @@ export const useGameStore = defineStore('game', () => {
       // Store a ref to the firebase object and watch it for updates
       // We can look to abstract this to a use function
       //gameRef.value = firebaseRef(firebaseDb, 'games/' + gameId)
-      gameRef = firebaseRef(firebaseDb, 'games/' + gameId);
-      state.id = gameId;
+      gameRef = firebaseRef(firebaseDb, 'games/' + gameId)
+      state.id = gameId
       onValue(gameRef, onFirebaseGameStateUpdated)
 
       addSelfToGameAsPlayer()
@@ -105,33 +114,37 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  /*
+   * Join a game lobby based on provided game ID
+   */
+  const joinGame = async (gameCode: string) => {
+    await loadByGameCode( gameCode );
+  }
+
   /**
    * When the Firebase object updates, syncronise the pinia store state to the best same
    */
   const onFirebaseGameStateUpdated = async (snapshot: DataSnapshot) => {
-
     // TODO: Do a diff for changes
 
-    const snapshotValue = snapshot.val();
-    state.id = snapshotValue.id;
-    state.gameCode = snapshotValue.gameCode;
-    state.roundStage = snapshotValue.roundStage;
-    state.roundNumber = snapshotValue.roundNumber;
+    const snapshotValue = snapshot.val()
+    state.id = snapshotValue.id
+    state.gameCode = snapshotValue.gameCode
+    state.roundStage = snapshotValue.roundStage
+    state.roundNumber = snapshotValue.roundNumber
 
-    const playerSnapshot:Array<Record<string,string>> = Object.values(snapshotValue.players);
+    const playerSnapshot: Array<Record<string, string>> = Object.values(snapshotValue.players)
 
-    for( const playerData of playerSnapshot ) {
-      const player:Player = {
+    for (const playerData of playerSnapshot) {
+      const player: GameParticipant = {
         id: playerData.id,
         name: playerData.name,
         avatar: parseInt(playerData.avatar),
         lastSeen: new Date(playerData.lastSeen),
         points: parseInt(playerData.points)
       }
-      state.players.set( player.id, player );
+      state.players.set(player.id, player)
     }
-
-
   }
 
   /**
@@ -142,13 +155,21 @@ export const useGameStore = defineStore('game', () => {
       //throw new Error('Cannot join game (no game found)')
     }
     firebaseUpdate(gameRef as DatabaseReference, {
-      [`players/${state.currentUserId}/id`]: state.currentUserId,
-      [`players/${state.currentUserId}/name`]: 'Mark',
-      [`players/${state.currentUserId}/lastSeen`]: new Date().toUTCString(),
-      [`players/${state.currentUserId}/points`]: 0,
-      [`players/${state.currentUserId}/avatar`]: 0
+      [`players/${userId.value}/id`]: localUser.value.id,
+      [`players/${userId.value}/name`]:localUser.value.name,
+      [`players/${userId.value}/lastSeen`]: new Date().toUTCString(),
+      [`players/${userId.value}/points`]: 0,
+      [`players/${userId.value}/avatar`]: localUser.value.avatar
     })
   }
+
+  /**
+   * When a user disconnected, remove them from the active user list
+   */
+  // const onSelfDisconnected = async () => {
+  //   //ref.onDisconnect()
+  //   // TODO: Handle self-user disconnects
+  // }
 
   /*
    * Create a new game
@@ -170,5 +191,5 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
-  return { state, questions, createNewGame, loadByGameCode, start }
+  return { state, localUser, questions, createNewGame, joinGame, loadByGameCode, start }
 })

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import Button from "primevue/Button"
+import PlayerAvatar from '@/components/PlayerAvatar.vue';
 
 import { useGameStore, RoundStage } from '@/stores/game';
 import { watch } from 'vue';
@@ -14,7 +15,7 @@ const startGame = () => {
 };
 
 // If the game updates to 'playable' game state, then move to game
-watch(game.state, async (newState:GameState, oldState:GameState) => {
+watch(game.state, async (newState:GameState) => {
     if (newState.roundStage == RoundStage.QuestionBeingAsked ) {
         router.push({ name: 'game' });
     }
@@ -31,7 +32,7 @@ watch(game.state, async (newState:GameState, oldState:GameState) => {
 
         <h3>Players</h3>
         <ul v-for="(player,playerIndex) in game.state.players.values()" v-bind:key="playerIndex">
-            <li>{{ player.name }} ({{ player.id }})</li>
+            <li><PlayerAvatar :id="player.avatar"></PlayerAvatar> {{ player.name }} ({{ player.id }})</li>
         </ul>
 
         <Button label="Start Game" @click="startGame"></Button>
